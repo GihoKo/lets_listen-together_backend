@@ -14,11 +14,11 @@ const getAllChannels = async (req, res) => {
 
 // id를 이용해 특정 채널 가져오기\
 const getChannelById = async (req, res) => {
-  const { id } = req.params;
+  const { channelId } = req.params;
   try {
     const channel = await prisma.channel.findUnique({
       where: {
-        id: String(id),
+        id: String(channelId),
       },
     });
     return res.json(channel);
@@ -47,12 +47,12 @@ const createChannel = async (req, res) => {
 
 // 채널 수정하기
 const updateChannel = async (req, res) => {
-  const { id } = req.params;
+  const { channelId } = req.params;
   const { name, description, image, tags } = req.body.channel;
   try {
     const updatedChannel = await prisma.channel.update({
       where: {
-        id: String(id),
+        id: String(channelId),
       },
       data: {
         name,
@@ -69,11 +69,11 @@ const updateChannel = async (req, res) => {
 
 // 채널 삭제하기
 const deleteChannel = async (req, res) => {
-  const { id } = req.params;
+  const { channelId } = req.params;
   try {
     const deletedChannel = await prisma.channel.delete({
       where: {
-        id: String(id),
+        id: String(channelId),
       },
     });
     return res.json(deletedChannel);
@@ -85,13 +85,13 @@ const deleteChannel = async (req, res) => {
 // 해당 채널의 음악 가져오기
 const getMusicsByChannelId = async (req, res) => {
   const { channelId } = req.params;
+  console.log(channelId);
   try {
     const musics = await prisma.music.findMany({
       where: {
         channelId: channelId,
       },
     });
-    console.log(musics);
     return res.json(musics);
   } catch (error) {
     console.error(error);
