@@ -6,6 +6,7 @@ import cors from 'cors';
 import userRoutes from '../routes/userRoutes.js';
 import channelRoutes from '../routes/channelRoutes.js';
 import musicRoutes from '../routes/musicRoutes.js';
+import authRoutes from '../routes/authRoutes.js';
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use(cors());
 
 // api routes
+app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/channels', channelRoutes);
 app.use('/api/musics', musicRoutes);
