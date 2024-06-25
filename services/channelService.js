@@ -30,7 +30,7 @@ const getChannelById = async (req, res) => {
 // 채널 생성하기
 const createChannel = async (req, res) => {
   const { name, description, image, tags, ownerId } = req.body.channel;
-  console.log(req.body.channel);
+
   try {
     const newChannel = await prisma.channel.create({
       data: {

@@ -4,9 +4,9 @@ import { getMusicById, createMusic, updateMusic, deleteMusic } from '../services
 
 const router = express.Router();
 
-router.get('/:id', getMusicById);
+router.get('/:musicId', getMusicById);
 router.post('/', createMusic);
-router.patch('/:id', updateMusic);
-router.delete('/:id', deleteMusic);
+router.patch('/:musicId', updateMusic);
+router.delete('/:musicId', deleteMusic);
 
 export default router;

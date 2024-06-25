@@ -3,11 +3,11 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const getMusicById = async (req, res) => {
-  const { id } = req.params;
+  const { musicId } = req.params;
   try {
     const music = await prisma.music.findUnique({
       where: {
-        id: String(id),
+        id: String(musicId),
       },
     });
     return res.json(music);
@@ -39,12 +39,12 @@ const createMusic = async (req, res) => {
 };
 
 const updateMusic = async (req, res) => {
-  const { id } = req.params;
+  const { musicId } = req.params;
   const { title, artist, url } = req.body.music;
   try {
     const updatedMusic = await prisma.music.update({
       where: {
-        id: String(id),
+        id: String(musicId),
       },
       data: {
         title,
@@ -59,11 +59,11 @@ const updateMusic = async (req, res) => {
 };
 
 const deleteMusic = async (req, res) => {
-  const { id } = req.params;
+  const { musicId } = req.params;
   try {
     const deletedMusic = await prisma.music.delete({
       where: {
-        id: String(id),
+        id: String(musicId),
       },
     });
     return res.json(deletedMusic);
