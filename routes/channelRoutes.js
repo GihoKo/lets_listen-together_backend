@@ -13,7 +13,7 @@ const router = express.Router();
 
 // 모든 채널 가져오기
 router.get('/', getAllChannels);
-// id를 이용해 특정 채널 가져오기\
+// id를 이용해 특정 채널 가져오기
 router.get('/:channelId', getChannelById);
 // 채널 생성하기
 router.post('/', createChannel);

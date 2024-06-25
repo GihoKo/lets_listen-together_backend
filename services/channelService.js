@@ -12,7 +12,7 @@ const getAllChannels = async (req, res) => {
   }
 };
 
-// id를 이용해 특정 채널 가져오기\
+// id를 이용해 특정 채널 가져오기
 const getChannelById = async (req, res) => {
   const { channelId } = req.params;
   try {
