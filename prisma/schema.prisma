@@ -8,31 +8,31 @@ datasource db {
 }
 
 model User {
-  id String @id @default(uuid())
-  email String @unique
-  nickName String 
-  profileImage String
-  channels Channel[] @relation("UserChannels")
+  id            String    @id @default(uuid())
+  email         String    @unique
+  nickName      String
+  profileImage  String
+  channels      Channel[] @relation("UserChannels")
   ownedChannels Channel[] @relation("ChannelOwner")
 }
 
 model Channel {
-  id String @id @default(uuid())
-  name String
+  id          String  @id @default(uuid())
+  name        String
   description String
-  image String
-  tags Json
-  users User[] @relation("UserChannels")
-  music Music[]
-  owner User @relation("ChannelOwner", fields: [ownerId], references: [id])
-  ownerId String
+  image       String
+  tags        Json
+  users       User[]  @relation("UserChannels")
+  music       Music[]
+  owner       User    @relation("ChannelOwner", fields: [ownerId], references: [id])
+  ownerId     String
 }
 
 model Music {
-  id String @id @default(uuid())
-  title String
-  artist String
-  url String
+  id        String  @id @default(uuid())
+  title     String
+  artist    String
+  url       String
   channelId String
-  channel Channel @relation(fields: [channelId], references: [id])
+  channel   Channel @relation(fields: [channelId], references: [id])
 }
