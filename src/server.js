@@ -9,9 +9,11 @@ import musicRoutes from '../routes/musicRoutes.js';
 import authRoutes from '../routes/authRoutes.js';
 
 const app = express();
+const PORT = process.env.PORT || 8080;
 
-app.use(express.json());
+// cors 커스텀
 app.use(cors());
+app.use(express.json());
 
 // api routes
 app.use('/api/auth', authRoutes);
@@ -22,8 +24,6 @@ app.use('/api/musics', musicRoutes);
 app.get('/', (req, res) => {
   res.send('Hello World');
 });
-
-const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
   console.log('Server is running on port 8080');

@@ -1,55 +1,36 @@
 import { OAuth2Client } from 'google-auth-library';
 import { PrismaClient } from '@prisma/client';
+import axios from 'axios';
 
 const googleClientId = process.env.GOOGLE_OAUTH_CLIENT_ID;
-const googleAuthClient = new OAuth2Client(googleClientId);
+const googleClientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
+const redirectUri = 'postmessage';
+const googleAuthClient = new OAuth2Client(googleClientId, googleClientSecret, redirectUri);
 const prisma = new PrismaClient();
 
-const googleAuth = async (req, res) => {
-  const { credential } = req.body;
+export const getGoogleTokens = async (req, res) => {
+  const { code } = req.body;
+  console.log('code:', code);
 
   try {
-    const ticket = await googleAuthClient.verifyIdToken({
-      idToken: credential,
-      audience: googleClientId,
+    const response = await axios.post('https://oauth2.googleapis.com/token', null, {
+      params: {
+        code: code,
+        client_id: googleClientId,
+        client_secret: googleClientSecret,
+        redirect_uri: redirectUri,
+        grant_type: 'authorization_code',
+      },
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
     });
 
-    const { email, name, picture } = ticket.getPayload();
+    const { access_token, refresh_token } = response.data;
 
-    const user = await prisma.user.findUnique({
-      where: { email: email },
-    });
-
-    if (!user) {
-      // 사용자 정보가 없으면 새로 생성
-      await prisma.user.create({
-        data: {
-          email,
-          nickName: name,
-          profileImage: picture,
-        },
-      });
-    } else {
-      // 사용자 정보가 있으면 업데이트
-      await prisma.user.update({
-        where: { email },
-        data: {
-          nickName: name,
-          profileImage: picture,
-        },
-      });
-    }
-
-    // 사용자 정보 가져오기
-    const userData = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    // 클라이언트로 전달
-    res.status(200).json(userData);
+    res.status(200).send({ access_token, refresh_token });
   } catch (error) {
     console.error('구글 OAuth 처리 중 오류 발생: ', error.message);
+    res.status(500).send('구글 OAuth 처리 중 오류 발생');
   }
 };
-
-export { googleAuth };
