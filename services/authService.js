@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
 import axios from 'axios';
+import { generateAccessToken, generateRefreshToken } from '../utils/generateToken.js';
 
 const googleClientId = process.env.GOOGLE_OAUTH_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
@@ -36,6 +36,7 @@ export const getGoogleTokens = async (req, res) => {
       },
     });
 
+    // 필요한 사용자 정보를 가져온다
     const { id, email, name: nickName, picture: profileImage } = googleUserInfoResponse.data;
 
     // 유저 id를 이용해 DB에서 유저 정보를 찾는다
@@ -50,6 +51,15 @@ export const getGoogleTokens = async (req, res) => {
       // 애플리케이션 accessToken과 refreshToken을 생성한다
       const accessToken = generateAccessToken(id, email);
       const refreshToken = generateRefreshToken(id, email);
+
+      // 리프레시 토큰을 cookie에 저장한다
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24, // 하루동안
+        secure: process.env.NODE_ENV === 'production' ? true : false, // https에서만 사용
+        sameSite: 'strict',
+      });
+
       // 유저 정보와 애플리케이션 토큰, 구글 OAuth 토큰을 클라이언트로 보낸다.
       res.status(200).send({
         applicationToken: { accessToken, refreshToken },
@@ -67,15 +77,26 @@ export const getGoogleTokens = async (req, res) => {
           profileImage,
         },
       });
+
       // 유저 정보를 가져온다.
       const newUser = await prisma.user.findUnique({
         where: {
           id,
         },
       });
+
       // 애플리케이션 accessToken과 refreshToken을 생성한다
       const accessToken = generateAccessToken(id, email);
       const refreshToken = generateRefreshToken(id, email);
+
+      // 리프레시 토큰을 cookie에 저장한다
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24, // 하루동안
+        secure: process.env.NODE_ENV === 'production' ? true : false, // https에서만 사용
+        sameSite: 'strict',
+      });
+
       // 유저 정보와 애플리케이션 토큰, 구글 OAuth 토큰을 클라이언트로 보낸다.
       res.status(200).send({
         applicationToken: { accessToken, refreshToken },
@@ -87,14 +108,4 @@ export const getGoogleTokens = async (req, res) => {
     console.error('구글 OAuth 처리 중 오류 발생: ', error.message);
     res.status(500).send('구글 OAuth 처리 중 오류 발생');
   }
-};
-
-// 엑세스 토큰 생성함수
-const generateAccessToken = (id, email) => {
-  return jwt.sign({ id, email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
-};
-
-// 리프레시 토큰 생성함수
-const generateRefreshToken = (id, email) => {
-  return jwt.sign({ id, email }, process.env.REFRESH_TOKEN_SECRET);
 };

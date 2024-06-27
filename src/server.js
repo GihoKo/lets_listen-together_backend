@@ -1,6 +1,7 @@
 // libraries
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 // routes
 import userRoutes from '../routes/userRoutes.js';
@@ -12,8 +13,14 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 // cors 커스텀
-app.use(cors());
+app.use(
+  cors({
+    origin: ['http://localhost:3000'],
+    credentials: true,
+  }),
+);
 app.use(express.json());
+app.use(cookieParser());
 
 // api routes
 app.use('/api/auth', authRoutes);

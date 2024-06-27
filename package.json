@@ -16,6 +16,7 @@
   "dependencies": {
     "@prisma/client": "^5.15.0",
     "axios": "^1.7.2",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "google-auth-library": "^9.11.0",
