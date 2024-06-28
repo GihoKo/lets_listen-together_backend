@@ -1,7 +1,9 @@
 import express from 'express';
-import { getGoogleTokens } from '../services/authService.js';
+import { getGoogleTokens, renewTokens } from '../services/authService.js';
 
 const router = express.Router();
+
+router.post('/renewTokens', renewTokens);
 
 router.post('/google/callback', getGoogleTokens);
 
