@@ -6,8 +6,18 @@ const getAllUsers = (req, res) => {
   res.send('Get all users');
 };
 
-const getUserById = (req, res) => {
-  res.send(`Get user by ID: ${req.params.id}`);
+const getUserById = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 // 내가 속한 채널 가져오기

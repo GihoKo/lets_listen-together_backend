@@ -29,10 +29,11 @@ model Channel {
 }
 
 model Music {
-  id        String  @id @default(uuid())
+  id        String   @id @default(uuid())
   title     String
   artist    String
   url       String
+  createdAt DateTime @default(now())
   channelId String
-  channel   Channel @relation(fields: [channelId], references: [id])
+  channel   Channel  @relation(fields: [channelId], references: [id])
 }
