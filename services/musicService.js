@@ -17,8 +17,7 @@ const getMusicById = async (req, res) => {
 };
 
 const createMusic = async (req, res) => {
-  console.log(req.body);
-  const { channelId, title, artist, url } = req.body.music;
+  const { channelId, title, artist, url } = req.body;
   try {
     const newMusic = await prisma.music.create({
       data: {
@@ -40,16 +39,16 @@ const createMusic = async (req, res) => {
 
 const updateMusic = async (req, res) => {
   const { musicId } = req.params;
-  const { title, artist, url } = req.body.music;
+  const { title, artist, url } = req.body;
   try {
     const updatedMusic = await prisma.music.update({
       where: {
         id: String(musicId),
       },
       data: {
-        title,
-        artist,
-        url,
+        title: title,
+        artist: artist,
+        url: url,
       },
     });
     return res.json(updatedMusic);
