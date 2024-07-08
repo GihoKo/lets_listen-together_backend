@@ -44,6 +44,23 @@ const getMyChannels = async (req, res) => {
   }
 };
 
+const getMyOwnChannels = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const channels = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        ownedChannels: true,
+      },
+    });
+    return res.json(channels.ownedChannels);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 const createUser = (req, res) => {
   res.send('Create user');
 };
@@ -56,4 +73,4 @@ const deleteUser = (req, res) => {
   res.send(`Delete user by ID: ${req.params.id}`);
 };
 
-export { getAllUsers, getUserById, getMyChannels, createUser, updateUser, deleteUser };
+export { getAllUsers, getUserById, getMyChannels, getMyOwnChannels, createUser, updateUser, deleteUser };

@@ -16,6 +16,7 @@ const router = express.Router();
 router.get('/', getAllUsers);
 router.get('/:userId', getUserById);
 router.get('/myChannels/:userId', authenticateToken, getMyChannels);
+router.get('/myOwnChannels/:userId', authenticateToken, getMyChannels);
 router.post('/', createUser);
 router.put('/:userId', updateUser);
 router.delete('/:userId', deleteUser);
