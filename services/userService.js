@@ -1,6 +1,14 @@
 import { PrismaClient } from '@prisma/client';
+import AWS from 'aws-sdk';
 
 const prisma = new PrismaClient();
+
+// AWS 설정
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_S3_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY,
+  region: process.env.AWS_S3_REGION,
+});
 
 const getAllUsers = (req, res) => {
   res.send('Get all users');
@@ -61,16 +69,48 @@ const getMyOwnChannels = async (req, res) => {
   }
 };
 
-const createUser = (req, res) => {
-  res.send('Create user');
-};
+const updateUser = async (req, res) => {
+  const { id, nickName, email } = req.body;
+  const file = req.file;
 
-const updateUser = (req, res) => {
-  res.send(`Update user by ID: ${req.params.id}`);
+  if (!file) {
+    return res.status(400).send('파일을 업로드해주세요.');
+  }
+
+  const AWSUploadParams = {
+    Bucket: process.env.AWS_S3_BUCKET_NAME,
+    Key: `profile-images/${file.originalname}`,
+    Body: file.buffer,
+    ContentType: file.mimetype,
+    ACL: 'public-read',
+  };
+
+  try {
+    // AWS S3에 이미지 업로드
+    const AWSResponse = await s3.upload(AWSUploadParams).promise();
+    const profileImageUrl = AWSResponse.Location;
+
+    // DB에 유저 정보 업데이트
+    const response = await prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        nickName,
+        email,
+        profileImage: profileImageUrl,
+      },
+    });
+
+    return res.status(200).send(response);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send('서버 에러');
+  }
 };
 
 const deleteUser = (req, res) => {
   res.send(`Delete user by ID: ${req.params.id}`);
 };
 
-export { getAllUsers, getUserById, getMyChannels, getMyOwnChannels, createUser, updateUser, deleteUser };
+export { getAllUsers, getUserById, getMyChannels, getMyOwnChannels, updateUser, deleteUser };

@@ -1,24 +1,23 @@
+// libraries
 import express from 'express';
+import multer from 'multer';
 
-import {
-  createUser,
-  deleteUser,
-  getMyChannels,
-  getAllUsers,
-  getUserById,
-  updateUser,
-} from '../services/userService.js';
+// services
+import { deleteUser, getMyChannels, getAllUsers, getUserById, updateUser } from '../services/userService.js';
+
+// utils
 import authenticateToken from '../middlewares/authenticateToken.js';
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 const router = express.Router();
 
-// Define routes for user-related operations
 router.get('/', getAllUsers);
 router.get('/:userId', getUserById);
 router.get('/myChannels/:userId', authenticateToken, getMyChannels);
 router.get('/myOwnChannels/:userId', authenticateToken, getMyChannels);
-router.post('/', createUser);
-router.put('/:userId', updateUser);
+router.patch('/:userId', authenticateToken, upload.single('profileImage'), updateUser);
 router.delete('/:userId', deleteUser);
 
 export default router;
