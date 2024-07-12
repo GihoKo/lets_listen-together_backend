@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 const getAllChannels = async (req, res) => {
   try {
     const channels = await prisma.channel.findMany();
-    return res.json(channels);
+    return res.status(200).json(channels);
   } catch (error) {
     console.error(error);
   }
@@ -21,7 +21,7 @@ const getChannelById = async (req, res) => {
         id: String(channelId),
       },
     });
-    return res.json(channel);
+    return res.status(200).json(channel);
   } catch (error) {
     console.error(error);
   }
@@ -41,7 +41,7 @@ const createChannel = async (req, res) => {
         ownerId,
       },
     });
-    return res.json(newChannel);
+    return res.status(200).json(newChannel);
   } catch (error) {
     console.error(error);
   }
@@ -63,7 +63,7 @@ const updateChannel = async (req, res) => {
         tags,
       },
     });
-    return res.json(updatedChannel);
+    return res.status(200).json(updatedChannel);
   } catch (error) {
     console.error(error);
   }
@@ -78,7 +78,7 @@ const deleteChannel = async (req, res) => {
         id: String(channelId),
       },
     });
-    return res.json(deletedChannel);
+    return res.status(200).json(deletedChannel);
   } catch (error) {
     console.error(error);
   }
@@ -94,7 +94,7 @@ const getMusicsByChannelId = async (req, res) => {
         channelId: channelId,
       },
     });
-    return res.json(musics);
+    return res.status(200).json(musics);
   } catch (error) {
     console.error(error);
   }

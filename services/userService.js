@@ -73,39 +73,56 @@ const updateUser = async (req, res) => {
   const { id, nickName, email } = req.body;
   const file = req.file;
 
-  if (!file) {
-    return res.status(400).send('파일을 업로드해주세요.');
-  }
+  if (file) {
+    // 이미지가 있는 경우
+    const AWSUploadParams = {
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Key: `profile-images/${file.originalname}`,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+      ACL: 'public-read',
+    };
 
-  const AWSUploadParams = {
-    Bucket: process.env.AWS_S3_BUCKET_NAME,
-    Key: `profile-images/${file.originalname}`,
-    Body: file.buffer,
-    ContentType: file.mimetype,
-    ACL: 'public-read',
-  };
+    try {
+      // AWS S3에 이미지 업로드
+      const AWSResponse = await s3.upload(AWSUploadParams).promise();
+      const profileImageUrl = AWSResponse.Location;
 
-  try {
-    // AWS S3에 이미지 업로드
-    const AWSResponse = await s3.upload(AWSUploadParams).promise();
-    const profileImageUrl = AWSResponse.Location;
+      // DB에 유저 정보 업데이트
+      const response = await prisma.user.update({
+        where: {
+          id,
+        },
+        data: {
+          nickName,
+          email,
+          profileImage: profileImageUrl,
+        },
+      });
 
-    // DB에 유저 정보 업데이트
-    const response = await prisma.user.update({
-      where: {
-        id,
-      },
-      data: {
-        nickName,
-        email,
-        profileImage: profileImageUrl,
-      },
-    });
+      return res.status(200).send(response);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).send('서버 에러');
+    }
+  } else {
+    // 이미지가 없는 경우
+    try {
+      const response = await prisma.user.update({
+        where: {
+          id,
+        },
+        data: {
+          nickName,
+          email,
+        },
+      });
 
-    return res.status(200).send(response);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).send('서버 에러');
+      return res.status(200).send(response);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).send('서버 에러');
+    }
   }
 };
 

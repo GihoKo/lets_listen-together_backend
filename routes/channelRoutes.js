@@ -1,5 +1,6 @@
 import express from 'express';
 
+import authenticateToken from '../middlewares/authenticateToken.js';
 import {
   getAllChannels,
   getChannelById,
@@ -12,16 +13,16 @@ import {
 const router = express.Router();
 
 // 모든 채널 가져오기
-router.get('/', getAllChannels);
+router.get('/', authenticateToken, getAllChannels);
 // id를 이용해 특정 채널 가져오기
-router.get('/:channelId', getChannelById);
+router.get('/:channelId', authenticateToken, getChannelById);
 // 채널 생성하기
-router.post('/', createChannel);
+router.post('/', authenticateToken, createChannel);
 // 채널 수정하기
-router.patch('/:channelId', updateChannel);
+router.patch('/:channelId', authenticateToken, updateChannel);
 // 채널 삭제하기
-router.delete('/:channelId', deleteChannel);
+router.delete('/:channelId', authenticateToken, deleteChannel);
 // 해당 채널의 음악 가져오기
-router.get('/:channelId/musics', getMusicsByChannelId);
+router.get('/:channelId/musics', authenticateToken, getMusicsByChannelId);
 
 export default router;
