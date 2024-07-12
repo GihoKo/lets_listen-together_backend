@@ -1,15 +1,12 @@
 // libraries
 import express from 'express';
-import multer from 'multer';
 
 // services
 import { deleteUser, getMyChannels, getAllUsers, getUserById, updateUser } from '../services/userService.js';
 
 // utils
 import authenticateToken from '../middlewares/authenticateToken.js';
-
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+import upload from '../middlewares/upload.js';
 
 const router = express.Router();
 

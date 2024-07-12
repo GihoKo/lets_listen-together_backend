@@ -10,6 +10,7 @@ import musicRoutes from '../routes/musicRoutes.js';
 import authRoutes from '../routes/authRoutes.js';
 
 const app = express();
+
 const PORT = process.env.PORT || 8080;
 
 // cors 커스텀
