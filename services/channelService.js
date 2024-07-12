@@ -30,7 +30,8 @@ const getChannelById = async (req, res) => {
 
 // 채널 생성하기
 const createChannel = async (req, res) => {
-  const { name, description, tags, ownerId } = req.body;
+  const { name, description, ownerId } = req.body;
+  const tags = JSON.parse(req.body.tags);
   const file = req.file;
 
   if (file) {
