@@ -24,8 +24,9 @@ const authenticateToken = (req, res, next) => {
     }
 
     req.user = user;
-    next(); // 다음 미들웨어 또는 라우터로 이동
   });
+
+  next(); // 다음 미들웨어 또는 라우터로 이동
 };
 
 export default authenticateToken;

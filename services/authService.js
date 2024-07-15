@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import axios from 'axios';
-import { generateAccessToken, generateRefreshToken } from '../utils/generateToken.js';
+import { generateToken } from '../utils/generateToken.js';
 import jwt from 'jsonwebtoken';
 
 const googleClientId = process.env.GOOGLE_OAUTH_CLIENT_ID;
@@ -50,8 +50,8 @@ export const getGoogleTokens = async (req, res) => {
     // 유저 정보가 있는 경우
     if (user) {
       // 애플리케이션 accessToken과 refreshToken을 생성한다
-      const accessToken = generateAccessToken(id, email);
-      const refreshToken = generateRefreshToken(id, email);
+      const accessToken = generateToken('accessToken', id, email);
+      const refreshToken = generateToken('refreshToken', id, email);
 
       // 리프레시 토큰을 cookie에 저장한다
       // 이후에 클라이언트에서 api 요청을 보낼 때 마다 자동으로 refreshToken cookie를 보내게 된다
@@ -62,10 +62,17 @@ export const getGoogleTokens = async (req, res) => {
         sameSite: 'strict',
       });
 
+      res.cookie('googleRefreshToken', googleRefreshToken, {
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24, // 하루동안
+        secure: process.env.NODE_ENV === 'production' ? true : false, // https에서만 사용
+        sameSite: 'strict',
+      });
+
       // 유저 정보와 애플리케이션 토큰, 구글 OAuth 토큰을 클라이언트로 보낸다.
       res.status(200).send({
-        applicationToken: { accessToken, refreshToken },
-        googleToken: { googleAccessToken, googleRefreshToken },
+        applicationAccessToken: accessToken,
+        googleAccessToken: googleAccessToken,
         user,
       });
     } else {
@@ -88,11 +95,17 @@ export const getGoogleTokens = async (req, res) => {
       });
 
       // 애플리케이션 accessToken과 refreshToken을 생성한다
-      const accessToken = generateAccessToken(id, email);
-      const refreshToken = generateRefreshToken(id, email);
+      const accessToken = generateToken('accessToken', id, email);
+      const refreshToken = generateToken('refreshToken', id, email);
 
-      // 리프레시 토큰을 cookie에 저장한다
       res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24, // 하루동안
+        secure: process.env.NODE_ENV === 'production' ? true : false, // https에서만 사용
+        sameSite: 'strict',
+      });
+
+      res.cookie('googleRefreshToken', googleRefreshToken, {
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24, // 하루동안
         secure: process.env.NODE_ENV === 'production' ? true : false, // https에서만 사용
@@ -101,8 +114,8 @@ export const getGoogleTokens = async (req, res) => {
 
       // 유저 정보와 애플리케이션 토큰, 구글 OAuth 토큰을 클라이언트로 보낸다.
       res.status(200).send({
-        applicationToken: { accessToken, refreshToken },
-        googleToken: { googleAccessToken, googleRefreshToken },
+        applicationAccessToken: accessToken,
+        googleAccessToken: googleAccessToken,
         user: newUser,
       });
     }
@@ -114,18 +127,18 @@ export const getGoogleTokens = async (req, res) => {
 
 export const renewTokens = (req, res) => {
   const refreshToken = req.cookies.refreshToken;
-  console.log('refreshToken: ', refreshToken);
+
   if (!refreshToken) {
     return res.status(401).json({ message: 'refreshToken이 없습니다. 로그인이 필요합니다' });
   }
 
-  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-    if (err) {
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (error, user) => {
+    if (error) {
       return res.status(401).json({ message: 'refreshToken이 유효하지 않습니다. 로그인이 필요합니다' });
     }
 
-    const accessToken = generateAccessToken(user.id, user.email);
-    const refreshToken = generateRefreshToken(user.id, user.email);
+    const accessToken = generateToken('accessToken', user.id, user.email);
+    const refreshToken = generateToken('refreshToken', user.id, user.email);
 
     // 리프레시 토큰을 쿠키에 저장
     res.cookie('refreshToken', refreshToken, {
@@ -136,6 +149,6 @@ export const renewTokens = (req, res) => {
     });
 
     // 엑세스 토큰을 보냄
-    res.status(200).send({ accessToken });
+    res.status(200).send({ applicationAccessToken: accessToken });
   });
 };
