@@ -16,7 +16,10 @@ const PORT = process.env.PORT || 8080;
 // cors 커스텀
 app.use(
   cors({
-    origin: ['http://localhost:3000'],
+    origin: [
+      'http://localhost:3000', // dev
+      'https://lets-listen-together.link', // prod
+    ],
     credentials: true,
   }),
 );
