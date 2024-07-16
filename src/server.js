@@ -31,6 +31,11 @@ app.use('/api/users', userRoutes);
 app.use('/api/channels', channelRoutes);
 app.use('/api/musics', musicRoutes);
 
+// health check
+app.get('/healthcheck', (req, res) => {
+  res.status(200).send('OK');
+});
+
 app.get('/', (req, res) => {
   res.send('Hello World');
 });
