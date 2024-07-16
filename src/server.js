@@ -9,6 +9,7 @@ import channelRoutes from '../routes/channelRoutes.js';
 import musicRoutes from '../routes/musicRoutes.js';
 import authRoutes from '../routes/authRoutes.js';
 
+// 배포 테스트
 const app = express();
 const PORT = process.env.PORT || 8080;
 
