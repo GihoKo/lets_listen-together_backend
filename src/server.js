@@ -10,19 +10,17 @@ import musicRoutes from '../routes/musicRoutes.js';
 import authRoutes from '../routes/authRoutes.js';
 
 const app = express();
-
 const PORT = process.env.PORT || 8080;
 
-// cors 커스텀
-app.use(
-  cors({
-    origin: [
-      'http://localhost:3000', // dev
-      'https://lets-listen-together.link', // prod
-    ],
-    credentials: true,
-  }),
-);
+const corsOptions = {
+  origin: ['https://lets-listen-together.link', 'http://localhost:3000'],
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  allowedHeaders: 'Content-Type,Authorization,x-requested-with,Accept,Origin',
+  exposedHeaders: 'cache-control,content-language,content-type,expires,last-modified,pragma',
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Preflight 요청 처리
 app.use(express.json());
 app.use(cookieParser());
 
