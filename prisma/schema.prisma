@@ -30,6 +30,7 @@ model Channel {
 
 model Music {
   id        String   @id @default(uuid())
+  order     Int
   title     String
   artist    String
   url       String
