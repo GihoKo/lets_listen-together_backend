@@ -87,22 +87,81 @@ const createChannel = async (req, res) => {
 // 채널 수정하기
 const updateChannel = async (req, res) => {
   const { channelId } = req.params;
-  const { name, description, image, tags } = req.body.channel;
-  try {
-    const updatedChannel = await prisma.channel.update({
-      where: {
-        id: String(channelId),
-      },
-      data: {
-        name,
-        description,
-        image,
-        tags,
-      },
-    });
-    return res.status(200).json(updatedChannel);
-  } catch (error) {
-    console.error(error);
+  const { name, description, image } = req.body;
+  const tags = JSON.parse(req.body.tags);
+  const file = req.file;
+
+  // 파일이 있는 경우
+  if (file) {
+    const AWSUploadParams = {
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Key: `channel-images/${file.originalname}`,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+      ACL: 'public-read',
+    };
+
+    try {
+      const AWSResponse = await s3.upload(AWSUploadParams).promise();
+      const profileImageUrl = AWSResponse.Location;
+
+      const updatedChannel = await prisma.channel.update({
+        where: {
+          id: String(channelId),
+        },
+        data: {
+          name,
+          description,
+          image: profileImageUrl,
+          tags,
+        },
+      });
+
+      return res.status(200).json(updatedChannel);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  // 파일은 없고 파일 url만 있는 경우
+  if (!req.file && req.body.image) {
+    try {
+      const updatedChannel = await prisma.channel.update({
+        where: {
+          id: String(channelId),
+        },
+        data: {
+          name,
+          description,
+          image,
+          tags,
+        },
+      });
+
+      return res.status(200).json(updatedChannel);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  // 파일도 없고 파일 url도 없는 경우
+  if (!req.file && !req.body.image) {
+    try {
+      const updatedChannel = await prisma.channel.update({
+        where: {
+          id: String(channelId),
+        },
+        data: {
+          name,
+          description,
+          tags,
+        },
+      });
+
+      return res.status(200).json(updatedChannel);
+    } catch (error) {
+      console.error(error);
+    }
   }
 };
 

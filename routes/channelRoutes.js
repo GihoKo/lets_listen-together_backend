@@ -27,6 +27,6 @@ router.delete('/:channelId', authenticateToken, deleteChannel);
 // 해당 채널의 음악 순서 변경하기
 router.patch('/music-order', authenticateToken, updateMusicListOrder);
 // 채널 수정하기
-router.patch('/:channelId', authenticateToken, updateChannel);
+router.patch('/:channelId', authenticateToken, upload.single('image'), updateChannel);
 
 export default router;
