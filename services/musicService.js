@@ -17,10 +17,11 @@ const getMusicById = async (req, res) => {
 };
 
 const createMusic = async (req, res) => {
-  const { channelId, title, artist, url } = req.body;
+  const { channelId, order, title, artist, url } = req.body;
   try {
     const newMusic = await prisma.music.create({
       data: {
+        order,
         title,
         artist,
         url,

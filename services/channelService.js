@@ -124,11 +124,13 @@ const deleteChannel = async (req, res) => {
 // 해당 채널의 음악 가져오기
 const getMusicsByChannelId = async (req, res) => {
   const { channelId } = req.params;
-  console.log(channelId);
   try {
     const musics = await prisma.music.findMany({
       where: {
         channelId: channelId,
+      },
+      orderBy: {
+        order: 'asc', // 'asc'는 오름차순, 'desc'는 내림차순
       },
     });
     return res.status(200).json(musics);
@@ -137,4 +139,35 @@ const getMusicsByChannelId = async (req, res) => {
   }
 };
 
-export { getAllChannels, getChannelById, createChannel, updateChannel, deleteChannel, getMusicsByChannelId };
+const updateMusicListOrder = async (req, res) => {
+  const newMusicList = req.body;
+
+  const updatePromises = newMusicList.map((music) => {
+    return prisma.music.update({
+      where: {
+        id: music.id,
+      },
+      data: {
+        order: music.order,
+      },
+    });
+  });
+
+  try {
+    const response = await Promise.all(updatePromises);
+    console.log(response);
+    return res.status(200).json({ message: '음악 순서가 변경되었습니다.' });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export {
+  getAllChannels,
+  getChannelById,
+  createChannel,
+  updateChannel,
+  deleteChannel,
+  getMusicsByChannelId,
+  updateMusicListOrder,
+};
