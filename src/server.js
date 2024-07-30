@@ -9,7 +9,6 @@ import channelRoutes from '../routes/channelRoutes.js';
 import musicRoutes from '../routes/musicRoutes.js';
 import authRoutes from '../routes/authRoutes.js';
 
-// 배포 테스트 제발 되라!
 const app = express();
 const PORT = process.env.PORT || 8080;
 
@@ -21,7 +20,7 @@ const corsOptions = {
   exposedHeaders: 'cache-control,content-language,content-type,expires,last-modified,pragma',
 };
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Preflight 요청 처리
+app.options('*', cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
