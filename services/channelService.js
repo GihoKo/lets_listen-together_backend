@@ -6,7 +6,11 @@ const prisma = new PrismaClient();
 // 모든 채널 가져오기
 const getAllChannels = async (req, res) => {
   try {
-    const channels = await prisma.channel.findMany();
+    const channels = await prisma.channel.findMany({
+      include: {
+        users: true,
+      },
+    });
     return res.status(200).json(channels);
   } catch (error) {
     console.error(error);
