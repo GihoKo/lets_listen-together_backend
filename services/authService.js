@@ -45,6 +45,10 @@ export const getGoogleTokens = async (req, res) => {
       where: {
         id,
       },
+      include: {
+        channels: true,
+        ownedChannels: true,
+      },
     });
 
     // 유저 정보가 있는 경우

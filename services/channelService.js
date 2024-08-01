@@ -6,7 +6,11 @@ const prisma = new PrismaClient();
 // 모든 채널 가져오기
 const getAllChannels = async (req, res) => {
   try {
-    const channels = await prisma.channel.findMany();
+    const channels = await prisma.channel.findMany({
+      include: {
+        users: true,
+      },
+    });
     return res.status(200).json(channels);
   } catch (error) {
     console.error(error);
@@ -20,6 +24,9 @@ const getChannelById = async (req, res) => {
     const channel = await prisma.channel.findUnique({
       where: {
         id: String(channelId),
+      },
+      include: {
+        users: true,
       },
     });
     return res.status(200).json(channel);
@@ -180,6 +187,105 @@ const deleteChannel = async (req, res) => {
   }
 };
 
+// 채널 구독하기
+const subscribeChannel = async (req, res) => {
+  const { channelId } = req.params;
+  const { userId } = req.body;
+
+  // 이미 구독한 채널인지 확인
+  try {
+    const subscribedChannel = await prisma.channel.findUnique({
+      where: {
+        id: channelId,
+      },
+      include: {
+        users: true,
+      },
+    });
+
+    const isSubscribed = subscribedChannel.users.some((user) => user.id === userId);
+
+    if (isSubscribed) {
+      return res.status(400).json({ message: '이미 구독한 채널입니다.' });
+    }
+  } catch (error) {
+    console.error(error);
+  }
+
+  try {
+    // 채널 구독
+    const subscribedChannel = await prisma.channel.update({
+      where: {
+        id: channelId,
+      },
+      data: {
+        users: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
+      include: {
+        users: true,
+      },
+    });
+
+    console.log(subscribedChannel);
+    return res.status(200).json(subscribedChannel);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+// 채널 구독 취소하기
+const unsubscribeChannel = async (req, res) => {
+  const { channelId } = req.params;
+  const { userId } = req.body;
+
+  // 구독 중인 채널인지 확인
+  try {
+    const subscribedChannel = await prisma.channel.findUnique({
+      where: {
+        id: channelId,
+      },
+      include: {
+        users: true,
+      },
+    });
+
+    const isSubscribed = subscribedChannel.users.some((user) => user.id === userId);
+
+    if (!isSubscribed) {
+      return res.status(400).json({ message: '구독 중인 채널이 아닙니다.' });
+    }
+  } catch (error) {
+    console.error;
+  }
+
+  try {
+    // 채널 구독 취소
+    const unsubscribedChannel = await prisma.channel.update({
+      where: {
+        id: channelId,
+      },
+      data: {
+        users: {
+          disconnect: {
+            id: userId,
+          },
+        },
+      },
+      include: {
+        users: true,
+      },
+    });
+
+    return res.status(200).json(unsubscribedChannel);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 // 해당 채널의 음악 가져오기
 const getMusicsByChannelId = async (req, res) => {
   const { channelId } = req.params;
@@ -198,6 +304,7 @@ const getMusicsByChannelId = async (req, res) => {
   }
 };
 
+// 음악 순서 변경하기
 const updateMusicListOrder = async (req, res) => {
   const newMusicList = req.body;
 
@@ -226,6 +333,8 @@ export {
   getChannelById,
   createChannel,
   updateChannel,
+  subscribeChannel,
+  unsubscribeChannel,
   deleteChannel,
   getMusicsByChannelId,
   updateMusicListOrder,

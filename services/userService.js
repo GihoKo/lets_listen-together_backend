@@ -24,7 +24,7 @@ const getUserById = async (req, res) => {
 // 내가 속한 채널 가져오기
 const getMyChannels = async (req, res) => {
   const { userId } = req.params;
-  console.log('userId : ', userId);
+
   try {
     // user테이블에서 id가 userId인 user를 찾고(where) channels와 ownedChannels를 가져온다(include)
     const channels = await prisma.user.findUnique({
@@ -37,7 +37,10 @@ const getMyChannels = async (req, res) => {
       },
     });
 
-    const myChannels = [...channels.channels, ...channels.ownedChannels];
+    const myChannels = {
+      subscribedChannels: channels.channels,
+      ownedChannels: channels.ownedChannels,
+    };
 
     return res.json(myChannels);
   } catch (error) {
@@ -45,6 +48,7 @@ const getMyChannels = async (req, res) => {
   }
 };
 
+// 내가 만든 채널 가져오기
 const getMyOwnChannels = async (req, res) => {
   const { userId } = req.params;
   try {
@@ -62,6 +66,26 @@ const getMyOwnChannels = async (req, res) => {
   }
 };
 
+// 내가 구독한 채널 가져오기
+const getMySubscribedChannels = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const channels = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        channels: true,
+      },
+    });
+    return res.json(channels.channels);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+// 유저 정보 업데이트
 const updateUser = async (req, res) => {
   const { id, nickName, email } = req.body;
   const file = req.file;
@@ -123,4 +147,4 @@ const deleteUser = (req, res) => {
   res.send(`Delete user by ID: ${req.params.id}`);
 };
 
-export { getAllUsers, getUserById, getMyChannels, getMyOwnChannels, updateUser, deleteUser };
+export { getAllUsers, getUserById, getMyChannels, getMyOwnChannels, getMySubscribedChannels, updateUser, deleteUser };
