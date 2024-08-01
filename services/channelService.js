@@ -304,6 +304,7 @@ const getMusicsByChannelId = async (req, res) => {
   }
 };
 
+// 음악 순서 변경하기
 const updateMusicListOrder = async (req, res) => {
   const newMusicList = req.body;
 
