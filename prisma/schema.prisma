@@ -17,24 +17,25 @@ model User {
 }
 
 model Channel {
-  id          String  @id @default(uuid())
+  id          Int      @id @default(autoincrement())
   name        String
   description String
   image       String
   tags        Json
-  users       User[]  @relation("UserChannels")
+  createdAt   DateTime @default(now())
+  users       User[]   @relation("UserChannels")
   music       Music[]
-  owner       User    @relation("ChannelOwner", fields: [ownerId], references: [id])
+  owner       User     @relation("ChannelOwner", fields: [ownerId], references: [id])
   ownerId     String
 }
 
 model Music {
-  id        String   @id @default(uuid())
+  id        Int      @id @default(autoincrement())
   order     Int
   title     String
   artist    String
   url       String
   createdAt DateTime @default(now())
-  channelId String
+  channelId Int
   channel   Channel  @relation(fields: [channelId], references: [id])
 }

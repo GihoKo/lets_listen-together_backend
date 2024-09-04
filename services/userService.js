@@ -79,6 +79,7 @@ const getMySubscribedChannels = async (req, res) => {
         channels: true,
       },
     });
+
     return res.json(channels.channels);
   } catch (error) {
     console.error(error);

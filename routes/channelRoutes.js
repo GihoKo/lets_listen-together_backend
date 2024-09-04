@@ -2,7 +2,7 @@ import express from 'express';
 
 import authenticateToken from '../middlewares/authenticateToken.js';
 import {
-  getAllChannels,
+  getChannelsByPageParams,
   getChannelById,
   createChannel,
   updateChannel,
@@ -16,8 +16,8 @@ import upload from '../middlewares/upload.js';
 
 const router = express.Router();
 
-// 모든 채널 가져오기
-router.get('/', authenticateToken, getAllChannels);
+// 커서 기반 페이징을 이용해 채널 가져오기
+router.get('/', authenticateToken, getChannelsByPageParams);
 // 해당 채널의 음악 가져오기
 router.get('/:channelId/musics', authenticateToken, getMusicsByChannelId);
 // id를 이용해 특정 채널 가져오기

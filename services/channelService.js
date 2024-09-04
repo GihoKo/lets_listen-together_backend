@@ -1,19 +1,33 @@
 import { PrismaClient } from '@prisma/client';
 import s3 from '../utils/s3.js';
+import { PAGE_SIZE } from '../constants/index.js';
 
 const prisma = new PrismaClient();
 
-// 모든 채널 가져오기
-const getAllChannels = async (req, res) => {
+// 페이징 처리된 채널 가져오기
+const getChannelsByPageParams = async (req, res) => {
+  const cursor = Number(req.query.cursor) || null;
+
   try {
     const channels = await prisma.channel.findMany({
+      take: PAGE_SIZE,
+      skip: cursor ? 1 : 0, // cursor가 존재하면 첫 페이지를 건너뛴다
+      cursor: cursor ? { id: cursor } : undefined, // cursor가 존재하지 않으면 undefined인데 이러면 첫 페이지를 가져온다
+      orderBy: {
+        createdAt: 'asc', // 'asc'는 오름차순, 'desc'는 내림차순
+      },
       include: {
         users: true,
       },
     });
-    return res.status(200).json(channels);
+
+    // 마지막 페이지를 nextCursor로 둔다
+    const nextCursor = channels.length === PAGE_SIZE ? channels[channels.length - 1].id : null;
+
+    return res.status(200).json({ channels, nextCursor });
   } catch (error) {
     console.error(error);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
@@ -329,7 +343,7 @@ const updateMusicListOrder = async (req, res) => {
 };
 
 export {
-  getAllChannels,
+  getChannelsByPageParams,
   getChannelById,
   createChannel,
   updateChannel,
