@@ -37,12 +37,15 @@ const getChannelById = async (req, res) => {
   try {
     const channel = await prisma.channel.findUnique({
       where: {
-        id: String(channelId),
+        id: Number(channelId),
       },
       include: {
         users: true,
       },
     });
+
+    console.log(channel);
+
     return res.status(200).json(channel);
   } catch (error) {
     console.error(error);
@@ -128,7 +131,7 @@ const updateChannel = async (req, res) => {
 
       const updatedChannel = await prisma.channel.update({
         where: {
-          id: String(channelId),
+          id: Number(channelId),
         },
         data: {
           name,
@@ -149,7 +152,7 @@ const updateChannel = async (req, res) => {
     try {
       const updatedChannel = await prisma.channel.update({
         where: {
-          id: String(channelId),
+          id: Number(channelId),
         },
         data: {
           name,
@@ -170,7 +173,7 @@ const updateChannel = async (req, res) => {
     try {
       const updatedChannel = await prisma.channel.update({
         where: {
-          id: String(channelId),
+          id: Number(channelId),
         },
         data: {
           name,
@@ -192,7 +195,7 @@ const deleteChannel = async (req, res) => {
   try {
     const deletedChannel = await prisma.channel.delete({
       where: {
-        id: String(channelId),
+        id: Number(channelId),
       },
     });
     return res.status(200).json(deletedChannel);
