@@ -44,8 +44,6 @@ const getChannelById = async (req, res) => {
       },
     });
 
-    console.log(channel);
-
     return res.status(200).json(channel);
   } catch (error) {
     console.error(error);
@@ -306,15 +304,17 @@ const unsubscribeChannel = async (req, res) => {
 // 해당 채널의 음악 가져오기
 const getMusicsByChannelId = async (req, res) => {
   const { channelId } = req.params;
+
   try {
     const musics = await prisma.music.findMany({
       where: {
-        channelId: channelId,
+        channelId: Number(channelId),
       },
       orderBy: {
         order: 'asc', // 'asc'는 오름차순, 'desc'는 내림차순
       },
     });
+
     return res.status(200).json(musics);
   } catch (error) {
     console.error(error);
